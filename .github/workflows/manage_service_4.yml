@@ -1,0 +1,34 @@
+name: Manage Service 4
+
+on:
+  schedule:
+    # 11:00 UTC = 04:00 PM PKT (Daily auto-suspend failsafe)
+    - cron: '0 11 * * *'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to run'
+        required: true
+        default: 'suspend'
+        type: choice
+        options:
+          - suspend
+          - resume
+
+jobs:
+  manage-service-4:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Toggle Service 4
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            ACTION="${{ inputs.action }}"
+          else
+            ACTION="suspend"
+          fi
+
+          echo "Executing: $ACTION on Service 4 (${{ secrets.RENDER_SERVICE_ID_4 }})"
+
+          curl -s -f -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID_4 }}/$ACTION" \
+            -H "Accept: application/json" \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY_4 }}"
